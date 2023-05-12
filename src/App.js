@@ -6,6 +6,7 @@ import Index from './components/auth/Index'
 import Logout from './components/auth/Logout'
 import Footer from './components/Footer'
 import MainLayout from './components/MainLayout'
+import History from './components/History'
 import { Map } from './components/Map'
 import NotFound from './components/NotFound'
 import UserPage from './components/User'
@@ -128,6 +129,7 @@ function App() {
               />
             }
           />
+          <Route path="history" element={<History accessToken={accessToken}/>} />
           <Route
             path="logout"
             element={
