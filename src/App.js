@@ -17,9 +17,8 @@ function App() {
   // const handleError = ()
   const handleLogin = (username, password) => {
     axios
-      // .post('http://localhost:8080/api/user/auth/login', { username, password }, {withCredentials: true})
       .post(
-        'http://api.sportiq.org:8001/api/v1/auth/login',
+        'http://api.sportiq.org:8080/api/user/auth/login',
         { username, password },
         { withCredentials: true }
       )
@@ -42,9 +41,8 @@ function App() {
       return
     }
     axios
-      // .post('http://localhost:8080/api/user/auth/token/refresh', {
       .post(
-        'http://api.sportiq.org:8001/api/v1/auth/token/refresh',
+        'http://api.sportiq.org:8080/api/user/auth/token/refresh',
         undefined,
         {
           withCredentials: true,
@@ -64,7 +62,7 @@ function App() {
       return
     }
     axios
-      .get('http://localhost:8080/api/user/info', {
+      .get('http://api.sportiq.org:8080/api/user/info', {
         headers: { Authorization: `Bearer ${accessToken}` },
       })
       .then((result) => {
@@ -78,9 +76,8 @@ function App() {
           error.response?.data?.detail[0]?.type === 'token.expired'
         ) {
           axios
-            // .post('http://localhost:8080/api/user/auth/token/refresh', {
             .post(
-              'http://sportiq.org:8001/api/v1/auth/token/refresh',
+              'http://api.sportiq.org:8080/api/user/auth/token/refresh',
               undefined,
               {
                 withCredentials: true,
