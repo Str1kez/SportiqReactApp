@@ -2,4 +2,11 @@
   width: 100%;
   height: 100%;
   display: flex;
+  max-width: 600px;
+  margin: auto;
+}
+
+.Link:hover {
+  color: red;
+  cursor: pointer;
 }

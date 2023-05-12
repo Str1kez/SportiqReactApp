@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import style from '../../styles/Login.module.css'
 
-const LoginForm = ({ onLogin, errors }) => {
+const LoginForm = ({ onLogin, errors, setNeedLogin }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -40,12 +40,18 @@ const LoginForm = ({ onLogin, errors }) => {
           >
             {error || errors}
           </div>
-          <h6 className="title mb-2">Login</h6>
+          <h6 className="title mb-2">Вход</h6>
+          <p
+            className={`${style.Link} mb-2`}
+            onClick={() => setNeedLogin(false)}
+          >
+            Регистрация
+          </p>
           <form onSubmit={handleSubmit} className="form-group">
             <input
               type="text"
               className="form-control"
-              placeholder="login"
+              placeholder="Логин"
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -53,12 +59,12 @@ const LoginForm = ({ onLogin, errors }) => {
             <input
               type="password"
               className="form-control"
-              placeholder="password"
+              placeholder="Пароль"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <input type="submit" className="form-control" value="Log in" />
+            <input type="submit" className="form-control" value="Вход" />
           </form>
         </div>
       </div>

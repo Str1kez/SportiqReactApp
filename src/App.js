@@ -2,19 +2,21 @@ import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './App.css'
-import LoginForm from './components/auth/Login'
+import Index from './components/auth/Index'
+import Logout from './components/auth/Logout'
 import Footer from './components/Footer'
 import MainLayout from './components/MainLayout'
 import { Map } from './components/Map'
+import NotFound from './components/NotFound'
 import UserPage from './components/User'
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false)
+  const [loggedOut, setLoggedOut] = useState(false)
   const [accessToken, setAccessToken] = useState('')
   const [error, setError] = useState('')
-  const [username, setUsername] = useState('')
+  const [user, setUser] = useState({})
 
-  // const handleError = ()
   const handleLogin = (username, password) => {
     axios
       .post(
@@ -26,6 +28,8 @@ function App() {
         console.log('логин')
         setAccessToken(result.data.accessToken)
         console.log('логин 2')
+        setError('')
+        setLoggedOut(false)
         setLoggedIn(true)
       })
       .catch((error) => {
@@ -36,79 +40,107 @@ function App() {
       })
   }
 
-  useEffect(() => {
-    if (loggedIn) {
-      return
-    }
+  const handleSignUp = (
+    username,
+    password,
+    phoneNumber,
+    firstName,
+    lastName
+  ) => {
     axios
-      .post(
-        'http://api.sportiq.org:8080/api/user/auth/token/refresh',
-        undefined,
-        {
-          withCredentials: true,
-        }
-      )
+      .post('http://api.sportiq.org:8080/api/user/auth/signup', {
+        username,
+        password,
+        phoneNumber,
+        firstName,
+        lastName,
+      })
       .then((result) => {
-        console.log('отработка при перезагрузке')
-        setLoggedIn(true)
-        console.log('отработка при перезагрузке 2')
+        console.log('регистрация')
         setAccessToken(result.data.accessToken)
-      })
-      .catch((errorRefresh) => console.error(errorRefresh))
-  }, [loggedIn])
-
-  useEffect(() => {
-    if (!loggedIn) {
-      return
-    }
-    axios
-      .get('http://api.sportiq.org:8080/api/user/info', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      })
-      .then((result) => {
-        console.log(result.data)
-        console.log('получил пользователя')
-        setUsername(result.data.username)
+        console.log('регистрация 2')
+        setError('')
+        setLoggedOut(false)
+        setLoggedIn(true)
       })
       .catch((error) => {
-        if (
-          error.response?.status === 401 &&
-          error.response?.data?.detail[0]?.type === 'token.expired'
-        ) {
-          axios
-            .post(
-              'http://api.sportiq.org:8080/api/user/auth/token/refresh',
-              undefined,
-              {
-                withCredentials: true,
-              }
-            )
-            .then((result) => {
-              console.log(
-                'должно отрабатывать при недоступности инфы пользователя'
-              )
-              setAccessToken(result.data.accessToken)
-            })
-            .catch((errorRefresh) => console.error(errorRefresh))
-        }
-        console.log('токен невалидный')
-        setLoggedIn(false)
         console.error(error.response?.data)
+        if (error.response.status === 400 || error.response.status === 404) {
+          setError(error.response?.data?.detail[0]?.msg)
+        }
       })
-  }, [loggedIn])
+  }
 
-  return loggedIn ? (
+  useEffect(() => {
+    if (loggedOut) return
+    if (!loggedIn) {
+      axios
+        .post(
+          'http://api.sportiq.org:8080/api/user/auth/token/refresh',
+          undefined,
+          {
+            withCredentials: true,
+          }
+        )
+        .then((result) => {
+          console.log('отработка при перезагрузке')
+          setAccessToken(result.data.accessToken)
+          console.log('отработка при перезагрузке 2')
+          setLoggedIn(true)
+        })
+        .catch((errorRefresh) => console.error(errorRefresh))
+    } else {
+      axios
+        .get('http://api.sportiq.org:8080/api/user/info', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+        .then((result) => {
+          console.log(result.data)
+          console.log('получил пользователя')
+          setUser(result.data)
+        })
+        .catch((error) => {
+          if (error.response?.status === 401) {
+            console.log(error.response?.data)
+            setLoggedIn(false)
+          } else {
+            console.error(error.response)
+          }
+        })
+    }
+  }, [loggedIn, loggedOut])
+
+  return loggedIn && !loggedOut ? (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<MainLayout username={username} />}>
+        <Route path="/" element={<MainLayout username={user.username} />}>
           <Route index element={<Map />} />
-          <Route path="user" element={<UserPage />} />
+          <Route
+            path="user"
+            element={
+              <UserPage
+                user={user}
+                setUser={setUser}
+                errors={error}
+                setLoggedIn={setLoggedIn}
+                accessToken={accessToken}
+                setAccessToken={setAccessToken}
+              />
+            }
+          />
+          <Route
+            path="logout"
+            element={
+              <Logout accessToken={accessToken} setLoggedOut={setLoggedOut} />
+            }
+          />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </BrowserRouter>
   ) : (
     <>
-      <LoginForm onLogin={handleLogin} errors={error} />
+      <Index onLogin={handleLogin} onSignUp={handleSignUp} errors={error} />
       <Footer />
     </>
   )

@@ -15,7 +15,12 @@ export default function MainLayout(props) {
           <a href="javascript:void(0)" className="dark"></a>
         </div>
       </div>
-      <Outlet />
+      <div className="header">
+        <div className="overlay"></div>
+        <div className="header-content">
+          <Outlet />
+        </div>
+      </div>
       <Footer />
     </>
   )
