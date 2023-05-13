@@ -10,5 +10,5 @@ export default function ConvertToISO(dateTime) {
     ':' +
     (minutes < 10 ? '0' : '') +
     minutes
-  return dateTime + timezone
+  return dateTime ? dateTime + timezone : ''
 }

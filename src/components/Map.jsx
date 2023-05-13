@@ -163,6 +163,7 @@ function TestMap({ events, geocoder, setGeocoder }) {
         const street = resultObject.getThoroughfare()
         const house = resultObject.getPremiseNumber()
         const addressStr = street ? `${street},${house ? house : ''}` : ''
+        if (!addressStr) return
         navigate(
           `/create?latitude=${coords[0]}&longitude=${coords[1]}&city=${city}&address=${addressStr}`
         )

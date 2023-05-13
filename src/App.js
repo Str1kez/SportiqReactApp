@@ -11,6 +11,7 @@ import { Main } from './components/Map'
 import NotFound from './components/NotFound'
 import UserPage from './components/User'
 import { CreateEvent } from './components/event/CreateEvent'
+import LookUpEvent from './components/event/LookUp'
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false)
@@ -163,6 +164,17 @@ function App() {
                 setAccessToken={setAccessToken}
                 setLoggedIn={setLoggedIn}
                 setSuccess={setSuccess}
+              />
+            }
+          />
+          <Route
+            path="event/:id"
+            element={
+              <LookUpEvent
+                setLoggedIn={setLoggedIn}
+                accessToken={accessToken}
+                setAccessToken={setAccessToken}
+                user={user}
               />
             }
           />
