@@ -186,16 +186,15 @@ function EventHost(props) {
   ) : (
     <>
       <EventLookUp event={props.event} errors={error} />
-      <h1>оо вы владелец</h1>
       <button
         onClick={() => setChangeMode(true)}
-        className="btn btn-theme-color modal-toggle"
+        className="btn btn-theme-color modal-toggle m-3"
       >
         Изменить
       </button>
       <button
         onClick={() => setDeleteMode(true)}
-        className="btn btn-theme-color modal-toggle"
+        className="btn btn-theme-color modal-toggle m-3"
       >
         Удалить
       </button>
