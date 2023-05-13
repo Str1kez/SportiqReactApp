@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom'
 
 export default function Navbar(props) {
   return (
-    <nav className="page-navbar" data-spy="affix" data-offset-top="10">
+    <nav className="page-navbar mb-5" data-spy="affix" data-offset-top="10">
       <ul className="nav-navbar container">
         <li className="nav-item">
           <NavLink to="." className="nav-link">

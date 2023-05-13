@@ -4,40 +4,157 @@ import {
   Placemark,
   GeolocationControl,
 } from '@pbe/react-yandex-maps'
-import { useEffect } from 'react'
+import axios from 'axios'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import CreateQueryString from '../tools/ConvertToQuery'
 
 export function Main(props) {
-  // const navigate = useNavigate()
-  // const handleClick = () => {
-  //   navigate('/history?lon=43.42345&lat=43.63434')
-  // }
-  // <YMaps>
-  //   <div>
-  //     <Map defaultState={{ center: [ 55.794834, 49.125648], zoom: 11 }} style={{width:"900px", height:"600px"}} />
-  //   </div>
-  // </YMaps>
-
   console.log('main')
+  const [events, setEvents] = useState([])
+  const [types, setTypes] = useState([])
+  const [filter, setFilter] = useState({})
+  console.log(events)
+
+  useEffect(() => {
+    axios
+      .get('http://api.sportiq.org:8080/api/event/type', {
+        headers: { Authorization: `Bearer ${props.accessToken}` },
+      })
+      .then((result) => {
+        console.log('получение типов')
+        let resultTypes = result.data?.types
+        resultTypes?.unshift('')
+        setTypes(resultTypes)
+      })
+      .catch((error) => {
+        console.error(error.response?.data)
+        if (error.response.status === 401) {
+          axios
+            .post(
+              'http://api.sportiq.org:8080/api/user/auth/token/refresh',
+              undefined,
+              {
+                withCredentials: true,
+              }
+            )
+            .then((refreshResult) => {
+              console.log('отработка при перезагрузке')
+              props.setAccessToken(refreshResult.data.accessToken)
+              console.log('отработка при перезагрузке 2')
+            })
+            .catch((errorRefresh) => {
+              console.error(errorRefresh)
+              props.setLoggedIn(false)
+            })
+        }
+      })
+  }, [])
+
+  useEffect(() => {
+    const queryFilter = CreateQueryString({ ...filter })
+    const requestURL =
+      'http://api.sportiq.org:8080/api/event/map?city=Казань' +
+      (queryFilter ? '&' + queryFilter : '')
+    axios
+      .get(requestURL, {
+        headers: { Authorization: `Bearer ${props.accessToken}` },
+      })
+      .then((result) => {
+        console.log('получил события')
+        setEvents(result.data.events)
+      })
+      .catch((error) => {
+        if (error.response?.status === 401) {
+          axios
+            .post(
+              'http://api.sportiq.org:8080/api/user/auth/token/refresh',
+              undefined,
+              {
+                withCredentials: true,
+              }
+            )
+            .then((refreshResult) => {
+              console.log('отработка при перезагрузке')
+              props.setAccessToken(refreshResult.data.accessToken)
+              console.log('отработка при перезагрузке 2')
+            })
+            .catch((errorRefresh) => {
+              console.error(errorRefresh)
+              props.setLoggedIn(false)
+            })
+        }
+      })
+  }, [filter])
+
   return (
     <>
       {props.success && (
-        <div className="alert alert-success" role="alert">
+        <div className="alert alert-success mt-5" role="alert">
           {props.success}
         </div>
       )}
-      <TestMap />
+      <TestMap
+        events={events}
+        geocoder={props.geocoder}
+        setGeocoder={props.setGeocoder}
+      />
+      <FiltersBlock types={types} setFilter={setFilter} />
     </>
   )
 }
 
-function TestMap(props) {
+function FiltersBlock({ types, setFilter }) {
+  const [type, setType] = useState('')
+  const [status, setStatus] = useState('')
+  const statuses = ['', 'Удалено', 'Запланировано', 'Идет', 'Завершено']
+
+  const handleFilter = (event) => {
+    event.preventDefault()
+    setFilter({ type, status })
+  }
+
+  return (
+    <form
+      onSubmit={handleFilter}
+      className="form-group mt-2"
+      style={{ marginRight: '20px' }}
+    >
+      <label className="mr-2">Фильтры: </label>
+      <select
+        value={type}
+        onChange={(e) => setType(e.target.value)}
+        style={{ marginRight: '20px' }}
+      >
+        {types.map((t, index) => (
+          <option key={index + statuses.length} value={t}>
+            {t}
+          </option>
+        ))}
+      </select>
+
+      <select
+        value={status}
+        onChange={(e) => setStatus(e.target.value)}
+        style={{ marginLeft: '20px' }}
+      >
+        {statuses.map((s, index) => (
+          <option key={index} value={s}>
+            {s}
+          </option>
+        ))}
+      </select>
+      <input type="submit" className="form-control" value="Применить" />
+    </form>
+  )
+}
+
+function TestMap({ events, geocoder, setGeocoder }) {
   const navigate = useNavigate()
-  let ymaps
 
   const handleDoubleClick = (event) => {
     const coords = event.get('coords')
-    ymaps
+    geocoder
       ?.geocode(coords)
       .then((result) => {
         const resultObject = result.geoObjects.get(0)
@@ -53,15 +170,19 @@ function TestMap(props) {
       .catch((error) => console.error(error))
   }
 
+  const handleMarkerClick = (id) => {
+    navigate(`/event/${id}`)
+  }
+
   const checkGeocode = (ymapsTemp) => {
-    ymaps = ymapsTemp
     console.log('init geocode')
+    setGeocoder(ymapsTemp)
   }
 
   return (
     <YMaps query={{ apikey: '11650dd3-fa90-488e-a33f-a25ff377e0dc' }}>
       <Map
-        modules={['geocode']}
+        modules={['geocode', 'geoObject.addon.balloon', 'geoObject.addon.hint']}
         defaultState={{
           center: [55.794834, 49.125648],
           zoom: 11,
@@ -69,105 +190,21 @@ function TestMap(props) {
         }}
         style={{ height: '700px', width: '1200px' }}
         onDblClick={handleDoubleClick}
+        className="mt-5"
         onLoad={checkGeocode}
       >
         <GeolocationControl options={{ float: 'right' }} />
-        <Placemark geometry={[55.832077, 49.14508]} />
+        {events.map((event) => (
+          <Placemark
+            key={event.id}
+            geometry={[event.latitude, event.longitude]}
+            onClick={() => handleMarkerClick(event.id)}
+            properties={{
+              hintContent: `<h4 style="color: black">${event.title}</h4><p style="color: black">${event.type}</br>${event.status}</p>`,
+            }}
+          />
+        ))}
       </Map>
     </YMaps>
   )
 }
-
-// function YandexMap(props) {
-//   useEffect(() => {
-//     async function main() {
-//       // Промис `ymaps3.ready` будет зарезолвлен, когда
-//       // загрузятся все компоненты API.
-//       await window.ymaps3.ready
-//       // Создание карты.
-//       const map = new window.ymaps3.YMap(document.getElementById('map'), {
-//         location: {
-//           // Координаты центра карты.
-//           // Порядок по умолчанию: «долгота, широта».
-//           center: [49.125648, 55.794834],
-//
-//           // Уровень масштабирования. Допустимые значения:
-//           // от 0 (весь мир) до 19.
-//           zoom: 11,
-//         },
-//       })
-//       const { YMapGeolocationControl } = await window.ymaps3.import(
-//         '@yandex/ymaps3-controls@0.0.1'
-//       )
-//       const {YMapDefaultMarker} = await window.ymaps3.import('@yandex/ymaps3-markers@0.0.1');
-//       map.addChild(new window.ymaps3.YMapDefaultSchemeLayer({ theme: 'dark' }))
-//       map.addChild(new window.ymaps3.YMapDefaultFeaturesLayer())
-//       map.addChild(
-//         new window.ymaps3.YMapControls({ position: 'bottom right' }).addChild(
-//           new YMapGeolocationControl()
-//         )
-//       )
-//       map.addChild(new window.ymaps3.YMapFeatureDataSource({id: 'popups'}));
-//       map.addChild(new window.ymaps3.YMapLayer({source: 'popups'}));
-//       const rightPopupContent = (close) => {
-//         const container = document.createElement('div');
-//         container.innerHTML = `<div class="right-popup" style="width:200px; height:100px">
-//             <button class="right-popup__close">✖</button>
-//             <img class="right-popup__img" src="./img/flower.svg">
-//             <p>Flowers studio</p>
-//             <button class="right-popup__accept">Read more</button>
-//         </div>`;
-//         container.querySelector('.right-popup__close').onclick = close;
-//         // container.querySelector('.right-popup__accept').onclick = navigate("/history")
-//         return container;
-//       }
-//       const RIGHT_DEFAULT_MARKER_POPUP = {
-//         content: rightPopupContent,
-//         position: 'right',
-//       }
-//       map.addChild(new YMapDefaultMarker({
-//                 coordinates: [49.145080, 55.832077],
-//                 popup: RIGHT_DEFAULT_MARKER_POPUP
-//             }));
-//       }
-//     main()
-//   }, [])
-
-// const leftPopup = useMemo(() => ({
-//   content: (close) => <div className="left-popup">
-//     <button className="left-popup__close" onClick={close}>✖</button>
-//     <div className="left-popup__img"></div>
-//     <div className="left-popup__info">
-//         <h1 className="left-popup__title">Car repair</h1>
-//         <p className="left-popup__text">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-//         <div className="left-popup__btn">
-//             <p className="left-popup__text">Directions</p>
-//         </div>
-//     </div>
-//   </div>,
-//   position: 'top'
-//   }), []);
-// const YMap = window.YMap
-// const YMapDefaultSchemeLayer = window.YMapDefaultSchemeLayer
-//
-// return (<YMap location={{center: [49.125648, 55.794834], zoom: 11}}>
-//         <YMapDefaultSchemeLayer />
-//       </YMap>)
-// <YMapDefaultFeaturesLayer />
-// <YMapFeatureDataSource id="popups" />
-// <YMapLayer source="popups" />
-// <YMapDefaultMarker coordinates={[49.145080, 55.832077]} popup={leftPopup} />
-// console.log('here')
-// useEffect(() => {
-//     window.ymaps3.ready.then(() => {
-//     const map = new window.ymaps3.YMap(document.getElementById('map'), {
-//       location: {
-//         center: [49.125648, 55.794834],
-//         zoom: 11
-//       }
-//     });
-//     map.addChild(new window.ymaps3.YMapDefaultSchemeLayer({theme: 'dark'}));
-//   });
-// }, [])
-// return <div id="map" style={{ height: '700px', width: '1200px' }}></div>
-// }

@@ -19,6 +19,7 @@ function App() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [user, setUser] = useState({})
+  const [geocoder, setGeocoder] = useState()
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -124,7 +125,19 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainLayout username={user.username} />}>
-          <Route index element={<Main success={success} />} />
+          <Route
+            index
+            element={
+              <Main
+                success={success}
+                accessToken={accessToken}
+                setAccessToken={setAccessToken}
+                setLoggedIn={setLoggedIn}
+                geocoder={geocoder}
+                setGeocoder={setGeocoder}
+              />
+            }
+          />
           <Route
             path="user"
             element={

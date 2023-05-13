@@ -17,7 +17,7 @@ export default function MainLayout(props) {
       </div>
       <div className="header">
         <div className="overlay"></div>
-        <div className="header-content">
+        <div className="header-content" style={{ marginTop: '60px' }}>
           <Outlet />
         </div>
       </div>
