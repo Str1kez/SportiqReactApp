@@ -7,16 +7,25 @@ import Logout from './components/auth/Logout'
 import Footer from './components/Footer'
 import MainLayout from './components/MainLayout'
 import History from './components/History'
-import { Map } from './components/Map'
+import { Main } from './components/Map'
 import NotFound from './components/NotFound'
 import UserPage from './components/User'
+import { CreateEvent } from './components/event/CreateEvent'
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false)
   const [loggedOut, setLoggedOut] = useState(false)
   const [accessToken, setAccessToken] = useState('')
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [user, setUser] = useState({})
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSuccess('')
+    }, 5000)
+    return () => clearTimeout(timer)
+  }, [success])
 
   const handleLogin = (username, password) => {
     axios
@@ -115,7 +124,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainLayout username={user.username} />}>
-          <Route index element={<Map />} />
+          <Route index element={<Main success={success} />} />
           <Route
             path="user"
             element={
@@ -129,7 +138,21 @@ function App() {
               />
             }
           />
-          <Route path="history" element={<History accessToken={accessToken}/>} />
+          <Route
+            path="history"
+            element={<History accessToken={accessToken} />}
+          />
+          <Route
+            path="create"
+            element={
+              <CreateEvent
+                accessToken={accessToken}
+                setAccessToken={setAccessToken}
+                setLoggedIn={setLoggedIn}
+                setSuccess={setSuccess}
+              />
+            }
+          />
           <Route
             path="logout"
             element={
