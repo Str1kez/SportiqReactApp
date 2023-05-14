@@ -44,13 +44,17 @@ export default function LookUpEvent(props) {
   }, [])
 
   return props.user.id === event.creatorId ? (
-    <EventHost
-      event={event}
-      setEvent={setEvent}
-      accessToken={props.accessToken}
-      setLoggedIn={props.setLoggedIn}
-      setAccessToken={props.setAccessToken}
-    />
+    event.status === 'Запланировано' ? (
+      <EventHost
+        event={event}
+        setEvent={setEvent}
+        accessToken={props.accessToken}
+        setLoggedIn={props.setLoggedIn}
+        setAccessToken={props.setAccessToken}
+      />
+    ) : (
+      <EventLookUp event={event} />
+    )
   ) : (
     <EventGuest event={event} />
   )
@@ -203,6 +207,7 @@ function EventHost(props) {
 }
 
 function EventGuest(props) {
+  // TODO: Set subscription logic
   return (
     <>
       <EventLookUp event={props.event} />

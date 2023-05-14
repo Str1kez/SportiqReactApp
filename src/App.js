@@ -154,7 +154,13 @@ function App() {
           />
           <Route
             path="history"
-            element={<History accessToken={accessToken} />}
+            element={
+              <History
+                accessToken={accessToken}
+                setLoggedIn={setLoggedIn}
+                setAccessToken={setAccessToken}
+              />
+            }
           />
           <Route
             path="create"

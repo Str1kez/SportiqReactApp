@@ -10,3 +10,7 @@
   color: red;
   cursor: pointer;
 }
+
+.Pagination:hover {
+  cursor: pointer;
+}

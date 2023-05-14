@@ -1,0 +1,12 @@
+.Link:hover {
+  cursor: pointer;
+}
+
+.Link {
+  height: 50px;
+  margin-bottom: 7px;
+}
+
+.Title {
+  color: black;
+}
