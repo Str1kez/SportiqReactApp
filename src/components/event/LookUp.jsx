@@ -496,7 +496,7 @@ function EventLookUp({ event, subs, errors }) {
         <div>
           <h2 className="title">Обновлено: </h2>
           <p className="header-subtitle mb-2" style={{ fontSize: '20px' }}>
-            {ConvertToHuman(event.createdAt)}
+            {ConvertToHuman(event.updatedAt)}
           </p>
         </div>
       </div>

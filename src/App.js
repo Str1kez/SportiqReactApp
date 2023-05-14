@@ -12,6 +12,7 @@ import NotFound from './components/NotFound'
 import UserPage from './components/User'
 import { CreateEvent } from './components/event/CreateEvent'
 import LookUpEvent from './components/event/LookUp'
+import Subscriptions from './components/Subscriptions'
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false)
@@ -181,6 +182,16 @@ function App() {
                 accessToken={accessToken}
                 setAccessToken={setAccessToken}
                 user={user}
+              />
+            }
+          />
+          <Route
+            path="subscriptions"
+            element={
+              <Subscriptions
+                setLoggedIn={setLoggedIn}
+                accessToken={accessToken}
+                setAccessToken={setAccessToken}
               />
             }
           />

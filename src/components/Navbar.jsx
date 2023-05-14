@@ -5,13 +5,13 @@ export default function Navbar(props) {
     <nav className="page-navbar mb-5" data-spy="affix" data-offset-top="10">
       <ul className="nav-navbar container">
         <li className="nav-item">
-          <NavLink to="." className="nav-link">
-            Map
+          <NavLink to="subscriptions" className="nav-link">
+            Подписки
           </NavLink>
         </li>
         <li className="nav-item">
           <NavLink to="history" className="nav-link">
-            History
+            История
           </NavLink>
         </li>
         <li className="nav-item">
@@ -29,7 +29,7 @@ export default function Navbar(props) {
         </li>
         <li className="nav-item">
           <NavLink to="logout" className="nav-link">
-            Logout
+            Выйти
           </NavLink>
         </li>
       </ul>

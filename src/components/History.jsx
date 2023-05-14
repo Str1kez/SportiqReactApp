@@ -55,28 +55,30 @@ export default function History(props) {
     <>
       <h1 className="header-title">История посещений</h1>
       <HistoryBlock history={history} />
-      <nav aria-label="Page navigation example" className="mt-3">
+      <nav aria-label="Page navigation example">
         <ul className="pagination justify-content-center">
-          <li className={`page-item ${page === 1 && 'disabled'}`}>
+          <li className="page-item ">
             <a
-              className="page-link"
-              onClick={() => setPage((page) => page - 1)}
+              className="btn-dark m-4"
+              onClick={() => {
+                if (page !== 1) setPage((page) => page - 1)
+              }}
               href="#"
             >
-              Previous
+              Назад
             </a>
           </li>
-          <li
-            className={`page-item ${
-              page === Math.ceil(totalCount / size) && 'disabled'
-            }`}
-          >
+          <li className="page-item">
             <a
-              className="page-link"
-              onClick={() => setPage((page) => page + 1)}
+              className="btn-dark m-4"
+              onClick={() => {
+                if (page !== Math.ceil(totalCount / size)) {
+                  setPage((page) => page + 1)
+                }
+              }}
               href="#"
             >
-              Next
+              Вперед
             </a>
           </li>
         </ul>
@@ -97,7 +99,7 @@ function HistoryBlock({ history }) {
         {history.map((event) => (
           <li
             key={event.event_id}
-            className={`${style.Link} list-group-item`}
+            className={`${style.Link} list-group-item form-control`}
             onClick={() => handleClick(event.event_id)}
           >
             <p className={style.Title}>{event.event_title}</p>
