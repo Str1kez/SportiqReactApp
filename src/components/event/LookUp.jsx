@@ -8,6 +8,7 @@ import style from '../../styles/Login.module.css'
 export default function LookUpEvent(props) {
   const eventId = useParams().id
   const [event, setEvent] = useState({})
+  const [subs, setSubs] = useState(0)
 
   useEffect(() => {
     axios
@@ -43,20 +44,65 @@ export default function LookUpEvent(props) {
       })
   }, [])
 
+  useEffect(() => {
+    axios
+      .get(
+        `http://api.sportiq.org:8080/api/subscription/subscribers/count/${eventId}`,
+        {
+          headers: { Authorization: `Bearer ${props.accessToken}` },
+        }
+      )
+      .then((result) => {
+        console.log('получение количества подписок')
+        console.log(result)
+        setSubs(result.data?.subscribersCount)
+      })
+      .catch((error) => {
+        console.error(error.response?.data)
+        if (error.response.status === 401) {
+          axios
+            .post(
+              'http://api.sportiq.org:8080/api/user/auth/token/refresh',
+              undefined,
+              {
+                withCredentials: true,
+              }
+            )
+            .then((refreshResult) => {
+              console.log('отработка при перезагрузке')
+              props.setAccessToken(refreshResult.data.accessToken)
+              console.log('отработка при перезагрузке 2')
+            })
+            .catch((errorRefresh) => {
+              console.error(errorRefresh)
+              props.setLoggedIn(false)
+            })
+        }
+      })
+  }, [])
+
   return props.user.id === event.creatorId ? (
     event.status === 'Запланировано' ? (
       <EventHost
         event={event}
         setEvent={setEvent}
+        subs={subs}
         accessToken={props.accessToken}
         setLoggedIn={props.setLoggedIn}
         setAccessToken={props.setAccessToken}
       />
     ) : (
-      <EventLookUp event={event} />
+      <EventLookUp event={event} subs={subs} />
     )
   ) : (
-    <EventGuest event={event} />
+    <EventGuest
+      event={event}
+      eventId={eventId}
+      subs={subs}
+      accessToken={props.accessToken}
+      setLoggedIn={props.setLoggedIn}
+      setAccessToken={props.setAccessToken}
+    />
   )
 }
 
@@ -189,7 +235,7 @@ function EventHost(props) {
     </>
   ) : (
     <>
-      <EventLookUp event={props.event} errors={error} />
+      <EventLookUp event={props.event} errors={error} subs={props.subs} />
       <button
         onClick={() => setChangeMode(true)}
         className="btn btn-theme-color modal-toggle m-3"
@@ -207,11 +253,108 @@ function EventHost(props) {
 }
 
 function EventGuest(props) {
-  // TODO: Set subscription logic
+  const [subMode, setSubMode] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    axios
+      .get('http://api.sportiq.org:8080/api/subscription/subscriptions', {
+        headers: { Authorization: `Bearer ${props.accessToken}` },
+      })
+      .then((result) => {
+        console.log('получение списка подписок')
+        console.log(result)
+        const valueToFind = result.data?.find(function (element) {
+          return element.event_id === props.eventId
+        })
+        console.log(valueToFind)
+        if (!!valueToFind) {
+          setSubMode(false)
+        }
+      })
+      .catch((error) => {
+        console.error(error.response?.data)
+        if (error.response.status === 401) {
+          axios
+            .post(
+              'http://api.sportiq.org:8080/api/user/auth/token/refresh',
+              undefined,
+              {
+                withCredentials: true,
+              }
+            )
+            .then((refreshResult) => {
+              console.log('отработка при перезагрузке')
+              props.setAccessToken(refreshResult.data.accessToken)
+              console.log('отработка при перезагрузке 2')
+            })
+            .catch((errorRefresh) => {
+              console.error(errorRefresh)
+              props.setLoggedIn(false)
+            })
+        }
+      })
+  }, [])
+
+  const handleClick = () => {
+    const query = `http://api.sportiq.org:8080/api/subscription/${
+      subMode ? '' : 'un'
+    }subscribe/${props.event.id}`
+    axios
+      .post(query, undefined, {
+        headers: { Authorization: `Bearer ${props.accessToken}` },
+      })
+      .then((result) => {
+        console.log('подписка/отписка ивент')
+        console.log(result)
+        setSubMode((subMode) => !subMode)
+        setError('')
+      })
+      .catch((error) => {
+        console.error(error.response?.data)
+        if (error.response.status === 400) {
+          setError(error.response.data?.detail[0]?.msg)
+        }
+        if (error.response.status === 401) {
+          axios
+            .post(
+              'http://api.sportiq.org:8080/api/user/auth/token/refresh',
+              undefined,
+              {
+                withCredentials: true,
+              }
+            )
+            .then((refreshResult) => {
+              console.log('отработка при перезагрузке')
+              props.setAccessToken(refreshResult.data.accessToken)
+              console.log('отработка при перезагрузке 2')
+            })
+            .catch((errorRefresh) => {
+              console.error(errorRefresh)
+              props.setLoggedIn(false)
+            })
+        }
+      })
+  }
+
   return (
     <>
-      <EventLookUp event={props.event} />
-      <h1>ой вы гость</h1>
+      <EventLookUp event={props.event} subs={props.subs} errors={error} />
+      {subMode ? (
+        <button
+          onClick={() => handleClick()}
+          className="btn btn-theme-color modal-toggle m-3"
+        >
+          Подписаться
+        </button>
+      ) : (
+        <button
+          onClick={() => handleClick()}
+          className="btn btn-theme-color modal-toggle m-3"
+        >
+          Отписаться
+        </button>
+      )}
     </>
   )
 }
@@ -290,7 +433,7 @@ function EventChange({ onUpdate, errors }) {
   )
 }
 
-function EventLookUp({ event, errors }) {
+function EventLookUp({ event, subs, errors }) {
   return (
     <div style={{ width: '800px' }}>
       {errors && (
@@ -339,6 +482,10 @@ function EventLookUp({ event, errors }) {
           </p>
         </div>
       </div>
+      <h2 className="title">Подписчиков: </h2>
+      <p className="header-subtitle mb-2" style={{ fontSize: '20px' }}>
+        {subs}
+      </p>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <div>
           <h2 className="title">Создано: </h2>

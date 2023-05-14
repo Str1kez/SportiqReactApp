@@ -58,24 +58,26 @@ export default function History(props) {
       <nav aria-label="Page navigation example" className="mt-3">
         <ul className="pagination justify-content-center">
           <li className={`page-item ${page === 1 && 'disabled'}`}>
-            <p
+            <a
               className="page-link"
               onClick={() => setPage((page) => page - 1)}
+              href="#"
             >
               Previous
-            </p>
+            </a>
           </li>
           <li
             className={`page-item ${
               page === Math.ceil(totalCount / size) && 'disabled'
             }`}
           >
-            <p
+            <a
               className="page-link"
               onClick={() => setPage((page) => page + 1)}
+              href="#"
             >
               Next
-            </p>
+            </a>
           </li>
         </ul>
       </nav>
@@ -90,7 +92,7 @@ function HistoryBlock({ history }) {
   const handleClick = (id) => navigate(`/event/${id}`)
 
   return (
-    <div className="container">
+    <div className="container" style={{ height: '580px' }}>
       <ul className="list-group">
         {history.map((event) => (
           <li
