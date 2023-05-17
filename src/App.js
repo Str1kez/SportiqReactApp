@@ -207,7 +207,12 @@ function App() {
     </BrowserRouter>
   ) : (
     <>
-      <Index onLogin={handleLogin} onSignUp={handleSignUp} errors={error} />
+      <Index
+        onLogin={handleLogin}
+        onSignUp={handleSignUp}
+        errors={error}
+        setErrors={setError}
+      />
       <Footer />
     </>
   )
