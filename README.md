@@ -1,70 +1,58 @@
-# Getting Started with Create React App
+# React App for Sportiq project
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is browser app on React JS for interaction with API of Sportiq project.
 
-## Available Scripts
+## Related Sportiq services
 
-In the project directory, you can run:
+- [API Gateway](https://github.com/Str1kez/SportiqAPIGateway)
+- [User Service](https://github.com/Str1kez/SportiqUserService)
+- [Event Service](https://github.com/Str1kez/SportiqEventService)
+- [Subscription Service](https://github.com/Str1kez/SportiqSubscriptionService)
 
-### `npm start`
+## Examples
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Main page
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+![main page](/screenshots/Pasted%20image%2020230517155417.png)
 
-### `npm test`
+After authentication you'll pass on main page with map of existing events. On hover you can see short info about event. Clicking on the marker will take you to a page with full info. You can use filter for choosing your favorite type of sport or even status of event. Double clicking on the map will redirect you on page of creation.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Event creation
 
-### `npm run build`
+![event creation](/screenshots/Pasted%20image%2020230517155643.png)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+This is simple form with validation. If the event was created successfully, you'll see it on the map.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Created event on the map
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+![created event](/screenshots/Pasted%20image%2020230517155758.png)
 
-### `npm run eject`
+If you are the creator of the event, you can change it or even delete. But this behavior is managed by the API, more precisely by the event microservice.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Managing event info
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+![event info](/screenshots/Pasted%20image%2020230517160342.png)
+If you are an event guest, then you can subscribe on it.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Event subscription
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+![subscribe on event](/screenshots/Pasted%20image%2020230517160713.png)
 
-## Learn More
+Tracked events will be in the list of subscriptions. If the event is ended or deletes, it will be added to the history list.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### History and subscriptions
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+![subscriptions](/screenshots/Pasted%20image%2020230517160851.png)
+![history](/screenshots/Pasted%20image%2020230517161743.png)
 
-### Code Splitting
+## TODO
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- [ ] Add Redux for global states
+- [ ] Improve optimization
 
-### Analyzing the Bundle Size
+## Startup
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```commandline
+npm i
+npm start
+```
