@@ -1,6 +1,6 @@
 # React App for Sportiq project
 
-This is browser app on React JS for interaction with API of Sportiq project.
+This is browser app on React JS for interaction with API of Sportiq project. It is my debut in frontend 😄
 
 ## Related Sportiq services
 
